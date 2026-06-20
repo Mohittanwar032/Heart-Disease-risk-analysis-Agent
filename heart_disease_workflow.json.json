@@ -1,0 +1,247 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1VeZbMrqmw3Re-Bov9WFDqXEhQdeA-zz5VfTWir3kPYE/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRangeA1",
+              "range": "A1:j3"
+            }
+          },
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        0
+      ],
+      "id": "8fc49f20-dd0f-44bf-a5b8-edc25399f250",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RCVaLBuHy0VUt5em",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Heart Disease Risk Analysis Agent.\n\nAnalyze the patient data and return ONLY:\n\nPatient Summary\nRisk Factors\nRisk Score (1-10)\nRisk Level (Low/Medium/High)\nRecommendations (3 bullet points)\n\nPatient Data:\n{{ JSON.stringify($json) }}\n\nKeep the response concise and professional.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        592,
+        -208
+      ],
+      "id": "c7d91559-7cba-4877-8b9a-1a7bd1faaaab",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        144
+      ],
+      "id": "822fa562-ba97-4520-9bda-24d2c3823183",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "38J8oeBCwrc086NL",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        768,
+        144
+      ],
+      "id": "046f7813-e1ba-4f0d-86d9-d51688e32234",
+      "name": "Simple Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "Heart Disease Risk Analysis Agent\n\nInput: Patient Health Records\n\nGoogle Sheets → Gemini AI → Risk Assessment\n\nFeatures:\n✓ Risk Factor Detection\n✓ Health Insights\n✓ AI Recommendations\n✓ Memory Support\n\nTech Stack:\nn8n | Gemini AI | Google Sheets",
+        "height": 208,
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "953aac63-64d4-4970-b7c9-cc1ef6887eae",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -48,
+        -240
+      ],
+      "id": "30a68e40-93aa-497f-876a-41064640e4ba",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Heart Disease Risk Analyzer\n\nquery = _query.lower()\n\nrisk_score = 0\n\n# Age\nif \"63\" in query or \"60\" in query:\n    risk_score += 2\n\n# Cholesterol\nif \"233\" in query or \"250\" in query:\n    risk_score += 2\n\n# Blood Pressure\nif \"145\" in query or \"150\" in query:\n    risk_score += 2\n\n# Risk Classification\nif risk_score >= 5:\n    risk_level = \"High Risk\"\nelif risk_score >= 3:\n    risk_level = \"Medium Risk\"\nelse:\n    risk_level = \"Low Risk\"\n\nreturn f\"\"\"\nHeart Disease Analysis\n\nRisk Score: {risk_score}\nRisk Level: {risk_level}\n\nPatient Data:\n{_query}\n\nRecommendation:\n- Maintain a healthy diet\n- Exercise regularly\n- Monitor blood pressure\n- Consult a healthcare professional if needed\n\"\"\""
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        1008,
+        48
+      ],
+      "id": "edbfcebe-91ca-4a25-8c63-d3473f2d732a",
+      "name": "Code Tool"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "71b46fe7-8834-4cf4-bc49-865f1bacaeca",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b06d8578-6a52-4d5d-b736-9543ba1dd2f0",
+              "name": "Analysis",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        -224
+      ],
+      "id": "bebf61d1-3b77-4eea-82aa-008a49794104",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c7ee0f94-a0b8-4e51-bc03-2506185bc762",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b74e644dfb06fc0281380dc9b9ba520042dcafa6c2c448ca1fd84a3fe7754699"
+  },
+  "nodeGroups": [],
+  "id": "ZX2i88atnTphTkgQ",
+  "tags": []
+}
