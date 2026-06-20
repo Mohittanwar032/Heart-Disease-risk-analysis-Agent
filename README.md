@@ -41,3 +41,17 @@ JECRC Foundation, Jaipur
 
 ## Version
 Version 1.0
+## Workflow Screenshot
+
+![Workflow](workflow.png)
+
+## Sample Output
+
+![Output](output.png)
+
+## Future Improvements
+
+- LangChain Integration
+- MySQL Database Support
+- Interactive Chatbot
+- Real-Time Patient Risk Analysis
